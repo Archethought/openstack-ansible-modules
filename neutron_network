@@ -55,6 +55,12 @@ options:
         - The keystone url for authentication
      required: false
      default: 'http://127.0.0.1:35357/v2.0/'
+   auth_insecure:
+     description:
+        - Allow the keystone endpoint to use self-signed SSL certs/
+     required: no
+     choices: [ 'yes', 'no']
+     default: no
    region_name:
      description:
         - Name of the region
@@ -124,7 +130,8 @@ def _get_ksclient(module, kwargs):
         kclient = ksclient.Client(username=kwargs.get('login_username'),
                                  password=kwargs.get('login_password'),
                                  tenant_name=kwargs.get('login_tenant_name'),
-                                 auth_url=kwargs.get('auth_url'))
+                                 auth_url=kwargs.get('auth_url'),
+                                 insecure=kwargs.get('auth_insecure'))
     except Exception as e:
         module.fail_json(msg = "Error authenticating to the keystone: %s" %e.message)
     global _os_keystone
@@ -236,6 +243,7 @@ def main():
             login_password = dict(required=True),
             login_tenant_name = dict(required='True'),
             auth_url = dict(default='http://127.0.0.1:35357/v2.0/'),
+            auth_insecure = dict( required=False, default=False, choises=BOOLEANS),
             region_name = dict(default=None),
             name = dict(required=True),
             tenant_name = dict(default=None),
